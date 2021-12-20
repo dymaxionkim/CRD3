@@ -9,12 +9,23 @@ def Transform(Xinput,Yinput,Xmove,Ymove):
     Youtput = Yinput + Ymove
     return Xoutput,Youtput
 
+def Rotation(Xtemp,Ytemp,ANGLE,i):
+    XX = np.cos(ANGLE*i)*Xtemp - np.sin(ANGLE*i)*Ytemp
+    YY = np.sin(ANGLE*i)*Xtemp + np.cos(ANGLE*i)*Ytemp
+    return XX,YY
+
 def TransRotation(Xcenter,Ycenter,Xinput,Yinput,Angle):
     Xinput2,Yinput2 = Transform(Xinput,Yinput,-Xcenter,-Ycenter)
     Xinput3 = np.cos(Angle)*Xinput2 - np.sin(Angle)*Yinput2
     Yinput3 = np.sin(Angle)*Xinput2 + np.cos(Angle)*Yinput2
     Xoutput,Youtput = Transform(Xinput3,Yinput3,Xcenter,Ycenter)
     return Xoutput,Youtput
+
+def Circle(DIA,SEG_CIRCLE):
+    THETA0 = np.linspace(0.0,2*np.pi,SEG_CIRCLE)
+    XX = DIA/2*np.sin(THETA0)
+    YY = DIA/2*np.cos(THETA0)
+    return XX,YY
 
 # One Tooth Data
 def HypoTooth(theta,point,Ra,Rb,e,q):
@@ -39,6 +50,8 @@ def Parameters():
     spec.loc['X0']=[float(values['-X0-']),'Center Position']
     spec.loc['Y0']=[float(values['-Y0-']),'Center Position']
     spec.loc['WorkingDirectory']=[values['-WorkingDirectoty-'],'Working Directory']
+    spec.loc['BEARING_FACTOR']=[float(values['-BEARING_FACTOR-']),'Bearing Factorc']
+    spec.loc['PIN_HOLE_FACTOR']=[float(values['-PIN_HOLE_FACTOR-']),'Pin Hole Factor']
     spec.loc['zd']=[spec.Content['zr']-spec.Content['ze'],'Number of Teeth Disc']
     spec.loc['Rbr']=[spec.Content['m']*spec.Content['zr'],'Radius of Base Circle for Ring']
     spec.loc['Rbd']=[spec.Content['m']*spec.Content['zd'],'Radius of Base Circle for Disc']
@@ -51,6 +64,16 @@ def Parameters():
     spec.loc['er']=[spec.Content['Rar']*spec.Content['h'],'Eccentricity for Ring']
     spec.loc['ed']=[spec.Content['Rad']*spec.Content['h'],'Eccentricity for Disc']
     spec.loc['ea']=[spec.Content['Rbr']-spec.Content['Rbd'],'Actual Eccentricity for Disc']
+    spec.loc['seg_circle']=[360,'Segmentation Points of Circle']
+    spec.loc['bearing_dia']=[2*spec.Content['Rbd']*spec.Content['BEARING_FACTOR'],'Bearing Diameter']
+    spec.loc['pin_hole_dia']=[(spec.Content['Rbd']-spec.Content['bearing_dia']/2)*spec.Content['PIN_HOLE_FACTOR'],'Pin Hole Diameter']
+    spec.loc['pin_dia']=[spec.Content['pin_hole_dia']-2*spec.Content['ea'],'Pin Diameter']
+    spec.loc['pins']=[int(values['-pins-']),'Number of Pins']
+    spec.loc['angle_pins']=[2*np.pi/spec.Content['pins'],'Pin Pitch Angle']
+    spec.loc['input_dia']=[spec.Content['bearing_dia']-2*spec.Content['ea'],'Input Shaft Diameter']
+    spec.loc['Xpin']=[(spec.Content['Rbd']+spec.Content['bearing_dia']/2)/2,'Position of Pin']
+    spec.loc['Ypin']=[0.0,'Position of Pin']
+
 
 def CRD3_PLOT(Xring,Yring,Xdisc,Ydisc):
     # Figure
@@ -70,6 +93,28 @@ def CRD3_PLOT(Xring,Yring,Xdisc,Ydisc):
         Xdisc1,Ydisc1 = TransRotation(spec.Content['X0'],spec.Content['Y0'],Xdisc,Ydisc,i*spec.Content['thetaD'])
         Xdisc2,Ydisc2 = Transform(Xdisc1,Ydisc1,spec.Content['ea'],0)
         plt.plot(Xdisc2,Ydisc2,'-',linewidth=1.5,color='blue')
+    # Bearing on Eccentric Disc
+    XX,YY = Circle(spec.Content['bearing_dia'],spec.Content['seg_circle'])
+    XX,YY = Transform(XX,YY,spec.Content['X0']+spec.Content['ea'],spec.Content['Y0'])
+    plt.plot(XX,YY, '-', linewidth=1.5, color='blue')
+    # Input Shaft
+    XX,YY = Circle(spec.Content['input_dia'],spec.Content['seg_circle'])
+    XX,YY = Transform(XX,YY,spec.Content['X0'],spec.Content['Y0'])
+    plt.plot(XX,YY, '-', linewidth=1.5, color='black')
+    # Pin holes on Eccentric Disc
+    for i in range(0,int(spec.Content['pins'])):
+        XX,YY = Circle(spec.Content['pin_hole_dia'],spec.Content['seg_circle'])
+        XX,YY = Transform(XX,YY,spec.Content['Xpin'],spec.Content['Ypin'])
+        XX2,YY2 = Rotation(XX,YY,spec.Content['angle_pins'],i)
+        XX2,YY2 = Transform(XX2,YY2,spec.Content['X0']+spec.Content['ea'],spec.Content['Y0'])
+        plt.plot(XX2,YY2, '-', linewidth=1.5, color='blue')
+    # Pin on Output Shaft
+    for i in range(0,int(spec.Content['pins'])):
+        XX,YY = Circle(spec.Content['pin_dia'],spec.Content['seg_circle'])
+        XX,YY = Transform(XX,YY,spec.Content['Xpin'],spec.Content['Ypin'])
+        XX2,YY2 = Rotation(XX,YY,spec.Content['angle_pins'],i)
+        XX2,YY2 = Transform(XX2,YY2,spec.Content['X0'],spec.Content['Y0'])
+        plt.plot(XX2,YY2, '-', linewidth=1.5, color='orange')
     plt.show()
 
 
@@ -86,6 +131,7 @@ col = [[sg.Text('Working Directory :',size=(15,1)), sg.Input('./Result/',key='-W
        [sg.Text('Center Position, Y0 =',size = (32,1)),sg.Input(0.0,key='-Y0-',size = (10,1)),sg.Text('[mm]')],
        [sg.Text('Bearing Size Factor =',size = (32,1)),sg.Input(0.6,key='-BEARING_FACTOR-',size = (10,1)),sg.Text('(0~1)')],
        [sg.Text('Pin Hole Size Factor =',size = (32,1)),sg.Input(0.6,key='-PIN_HOLE_FACTOR-',size = (10,1)),sg.Text('(0~1)')],
+       [sg.Text('Number of Pins, pins =',size = (32,1)),sg.Input(16,key='-pins-',size = (10,1)),sg.Text('[ea]')],
        [sg.Button('Run'), sg.Button('Exit')]]
 
 layout = [[col]]
