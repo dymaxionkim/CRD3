@@ -1,8 +1,0 @@
-Parameter,Content,Remark
-X0,0.0,Center Position
-Y0,0.0,Center Position
-m,1.0,Module
-zr,80,Number of Teeth Ring
-ze,1,Diff of Teeth
-h,0.7,Teeth Height Factor (0~1)
-point,50,Control Points for One Tooth
