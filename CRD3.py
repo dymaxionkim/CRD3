@@ -143,8 +143,8 @@ def SaveDXF(Xring,Yring,Xdisc,Ydisc):
         cpoint1R.append((Xring1[i],Yring1[i]))
     msp.add_spline(cpoint1R)
     # Base Circles
-    msp.add_circle((spec.Content['X0']+spec.Content['ea'],spec.Content['Y0']),radius=spec.Content['Rbd'],dxfattribs={'color':4,'linetype':'DASHED'})
-    msp.add_circle((spec.Content['X0'],spec.Content['Y0']),radius=spec.Content['Rbr'],dxfattribs={'color':0,'linetype':'DASHED'})
+    msp.add_circle((spec.Content['X0']+spec.Content['ea'],spec.Content['Y0']),radius=spec.Content['Rbd'],dxfattribs={'color':4})
+    msp.add_circle((spec.Content['X0'],spec.Content['Y0']),radius=spec.Content['Rbr'],dxfattribs={'color':0})
     # Bearing Circles
     msp.add_circle((spec.Content['X0']+spec.Content['ea'],spec.Content['Y0']),radius=spec.Content['bearing_dia']/2,dxfattribs={'color':4})
     msp.add_circle((spec.Content['X0'],spec.Content['Y0']),radius=spec.Content['input_dia']/2)
@@ -165,9 +165,10 @@ def SaveDXF(Xring,Yring,Xdisc,Ydisc):
         X_pin_cen4,Y_pin_cen4 = Transform(X_pin_cen3,Y_pin_cen3,spec.Content['X0'],spec.Content['Y0'])
         msp.add_circle((X_pin_cen4,Y_pin_cen4),radius=spec.Content['pin_dia']/2,dxfattribs={'color':6})
     # Deco for Ring Gear
-    X_START_RING = spec.Content['Rbr']+8*spec.Content['h']+spec.Content['X0']
+    thickness = 2*spec.Content['m']
+    X_START_RING = spec.Content['Rbr']+thickness+spec.Content['X0']
     Y_START_RING = spec.Content['Y0']
-    X_END_RING = spec.Content['Rbr']+spec.Content['X0']
+    X_END_RING = Xring1[0]
     Y_END_RING = spec.Content['Y0']
     msp.add_line([X_START_RING,Y_START_RING],[X_END_RING,Y_END_RING])
     X_START_RING2,Y_START_RING2 = Transform(X_START_RING,Y_START_RING,-spec.Content['X0'],-spec.Content['Y0'])
@@ -177,11 +178,11 @@ def SaveDXF(Xring,Yring,Xdisc,Ydisc):
     X_END_RING3,Y_END_RING3 = Rotation(X_END_RING2,Y_END_RING2,2*np.pi/spec.Content['zr'],1)
     X_END_RING4,Y_END_RING4 = Transform(X_END_RING3,Y_END_RING3,spec.Content['X0'],spec.Content['Y0'])
     msp.add_line([X_START_RING4,Y_START_RING4],[X_END_RING4,Y_END_RING4])
-    msp.add_arc(center=(spec.Content['X0'],spec.Content['Y0']), radius=spec.Content['Rbr']+8*spec.Content['h'], start_angle=0, end_angle=360/spec.Content['zr'])
+    msp.add_arc(center=(spec.Content['X0'],spec.Content['Y0']), radius=spec.Content['Rbr']+thickness, start_angle=0, end_angle=360/spec.Content['zr'])
     # Deco for Eccentric Disc
-    X_START_DISC = spec.Content['Rbd']-8*spec.Content['h']+spec.Content['X0']+spec.Content['ea']
+    X_START_DISC = spec.Content['Rbd']-thickness+spec.Content['X0']+spec.Content['ea']
     Y_START_DISC = spec.Content['Y0']
-    X_END_DISC = spec.Content['Rbd']+spec.Content['X0']+spec.Content['ea']
+    X_END_DISC = Xdisc1[0]
     Y_END_DISC = spec.Content['Y0']
     msp.add_line([X_START_DISC,Y_START_DISC],[X_END_DISC,Y_END_DISC],dxfattribs={'color':4})
     X_START_DISC2,Y_START_DISC2 = Transform(X_START_DISC,Y_START_DISC,-spec.Content['X0']-spec.Content['ea'],-spec.Content['Y0'])
@@ -191,7 +192,7 @@ def SaveDXF(Xring,Yring,Xdisc,Ydisc):
     X_END_DISC3,Y_END_DISC3 = Rotation(X_END_DISC2,Y_END_DISC2,2*np.pi/spec.Content['zd'],1)
     X_END_DISC4,Y_END_DISC4 = Transform(X_END_DISC3,Y_END_DISC3,spec.Content['X0']+spec.Content['ea'],spec.Content['Y0'])
     msp.add_line([X_START_DISC4,Y_START_DISC4],[X_END_DISC4,Y_END_DISC4],dxfattribs={'color':4})
-    msp.add_arc(center=(spec.Content['X0']+spec.Content['ea'],spec.Content['Y0']), radius=spec.Content['Rbd']-8*spec.Content['h'], start_angle=0, end_angle=360/spec.Content['zd'] ,dxfattribs={'color':4})
+    msp.add_arc(center=(spec.Content['X0']+spec.Content['ea'],spec.Content['Y0']), radius=spec.Content['Rbd']-thickness, start_angle=0, end_angle=360/spec.Content['zd'] ,dxfattribs={'color':4})
     # Output
     Result = os.path.join(spec.Content['WorkingDirectory'], f'Result.dxf')
     doc.saveas(Result)
