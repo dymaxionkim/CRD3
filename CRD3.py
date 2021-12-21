@@ -43,37 +43,38 @@ def HypoTooth(theta,point,Ra,Rb,e,q):
 
 # Read Input Parameters
 def Parameters():
-    spec.loc['m']=[float(values['-m-']),'Module']
-    spec.loc['zr']=[int(values['-zr-']),'Number of Teeth Ring']
-    spec.loc['ze']=[int(values['-ze-']),'Diff of Teeth']
-    spec.loc['h']=[float(values['-h-']),'Teeth Height Factor (0~1)']
-    spec.loc['point']=[int(values['-point-']),'Control Points for One Tooth']
-    spec.loc['X0']=[float(values['-X0-']),'Center Position']
-    spec.loc['Y0']=[float(values['-Y0-']),'Center Position']
-    spec.loc['WorkingDirectory']=[values['-WorkingDirectoty-'],'Working Directory']
-    spec.loc['BEARING_FACTOR']=[float(values['-BEARING_FACTOR-']),'Bearing Factorc']
-    spec.loc['PIN_HOLE_FACTOR']=[float(values['-PIN_HOLE_FACTOR-']),'Pin Hole Factor']
-    spec.loc['zd']=[spec.Content['zr']-spec.Content['ze'],'Number of Teeth Disc']
-    spec.loc['Rbr']=[spec.Content['m']*spec.Content['zr'],'Radius of Base Circle for Ring']
-    spec.loc['Rbd']=[spec.Content['m']*spec.Content['zd'],'Radius of Base Circle for Disc']
-    spec.loc['Rar']=[spec.Content['Rbr']/spec.Content['zr'],'Radius of Rolling Circle for Ring']
-    spec.loc['Rad']=[spec.Content['Rbd']/spec.Content['zd'],'Radius of Rolling Circle for Disc']
-    spec.loc['thetaR']=[2*np.pi/spec.Content['zr'],'Pitch Angle of Ring [rad]']
-    spec.loc['thetaD']=[2*np.pi/spec.Content['zd'],'Pitch Angle of Disc [rad]']
-    spec.loc['qr']=[(np.pi*spec.Content['Rbr']/spec.Content['zr'])/2,'Radius of Roller for Ring']
-    spec.loc['qd']=[(np.pi*spec.Content['Rbr']/spec.Content['zr'])/2,'Radius of Roller for Disc (equidistant distance)']
-    spec.loc['er']=[spec.Content['Rar']*spec.Content['h'],'Eccentricity for Ring']
-    spec.loc['ed']=[spec.Content['Rad']*spec.Content['h'],'Eccentricity for Disc']
-    spec.loc['ea']=[spec.Content['Rbr']-spec.Content['Rbd'],'Actual Eccentricity for Disc']
-    spec.loc['seg_circle']=[360,'Segmentation Points of Circle']
-    spec.loc['bearing_dia']=[2*spec.Content['Rbd']*spec.Content['BEARING_FACTOR'],'Bearing Diameter']
-    spec.loc['pin_hole_dia']=[(spec.Content['Rbd']-spec.Content['bearing_dia']/2)*spec.Content['PIN_HOLE_FACTOR'],'Pin Hole Diameter']
-    spec.loc['pin_dia']=[spec.Content['pin_hole_dia']-2*spec.Content['ea'],'Pin Diameter']
-    spec.loc['pins']=[int(values['-pins-']),'Number of Pins']
-    spec.loc['angle_pins']=[2*np.pi/spec.Content['pins'],'Pin Pitch Angle']
-    spec.loc['input_dia']=[spec.Content['bearing_dia']-2*spec.Content['ea'],'Input Shaft Diameter']
-    spec.loc['Xpin']=[(spec.Content['Rbd']+spec.Content['bearing_dia']/2)/2,'Position of Pin']
-    spec.loc['Ypin']=[0.0,'Position of Pin']
+    spec.loc['m']=[float(values['-m-']),'mm','Module']
+    spec.loc['zr']=[int(values['-zr-']),'ea','Number of Teeth Ring']
+    spec.loc['ze']=[int(values['-ze-']),'ea','Diff of Teeth']
+    spec.loc['h']=[float(values['-h-']),'','Teeth Height Factor (0~1)']
+    spec.loc['point']=[int(values['-point-']),'ea','Control Points for One Tooth']
+    spec.loc['X0']=[float(values['-X0-']),'mm','Center Position']
+    spec.loc['Y0']=[float(values['-Y0-']),'mm','Center Position']
+    spec.loc['WorkingDirectory']=[values['-WorkingDirectoty-'],'','Working Directory']
+    spec.loc['BEARING_FACTOR']=[float(values['-BEARING_FACTOR-']),'','Bearing Factorc']
+    spec.loc['PIN_HOLE_FACTOR']=[float(values['-PIN_HOLE_FACTOR-']),'','Pin Hole Factor']
+    spec.loc['zd']=[spec.Content['zr']-spec.Content['ze'],'ea','Number of Teeth Disc']
+    spec.loc['Rbr']=[spec.Content['m']*spec.Content['zr'],'mm','Radius of Base Circle for Ring']
+    spec.loc['Rbd']=[spec.Content['m']*spec.Content['zd'],'mm','Radius of Base Circle for Disc']
+    spec.loc['Rar']=[spec.Content['Rbr']/spec.Content['zr'],'mm','Radius of Rolling Circle for Ring']
+    spec.loc['Rad']=[spec.Content['Rbd']/spec.Content['zd'],'mm','Radius of Rolling Circle for Disc']
+    spec.loc['thetaR']=[2*np.pi/spec.Content['zr'],'rad','Pitch Angle of Ring']
+    spec.loc['thetaD']=[2*np.pi/spec.Content['zd'],'rad','Pitch Angle of Disc']
+    spec.loc['qr']=[(np.pi*spec.Content['Rbr']/spec.Content['zr'])/2,'mm','Radius of Roller for Ring']
+    spec.loc['qd']=[(np.pi*spec.Content['Rbr']/spec.Content['zr'])/2,'mm','Radius of Roller for Disc (equidistant distance)']
+    spec.loc['er']=[spec.Content['Rar']*spec.Content['h'],'mm','Eccentricity for Ring']
+    spec.loc['ed']=[spec.Content['Rad']*spec.Content['h'],'mm','Eccentricity for Disc']
+    spec.loc['ea']=[spec.Content['Rbr']-spec.Content['Rbd'],'mm','Actual Eccentricity for Disc']
+    spec.loc['seg_circle']=[360,'ea','Segmentation Points of Circle']
+    spec.loc['bearing_dia']=[2*spec.Content['Rbd']*spec.Content['BEARING_FACTOR'],'mm','Bearing Diameter']
+    spec.loc['pin_hole_dia']=[(spec.Content['Rbd']-spec.Content['bearing_dia']/2)*spec.Content['PIN_HOLE_FACTOR'],'mm','Pin Hole Diameter']
+    spec.loc['pin_dia']=[spec.Content['pin_hole_dia']-2*spec.Content['ea'],'mm','Pin Diameter']
+    spec.loc['pins']=[int(values['-pins-']),'ea','Number of Pins']
+    spec.loc['angle_pins']=[2*np.pi/spec.Content['pins'],'rad','Pin Pitch Angle']
+    spec.loc['input_dia']=[spec.Content['bearing_dia']-2*spec.Content['ea'],'mm','Input Shaft Diameter']
+    spec.loc['Xpin']=[(spec.Content['Rbd']+spec.Content['bearing_dia']/2)/2,'mm','Position of Pin']
+    spec.loc['Ypin']=[0.0,'mm','Position of Pin']
+    spec.loc['I']=[spec.Content['zd']/(spec.Content['zd']-spec.Content['zr']),'','Reduction Ratio']
 
 def CRD3_PLOT(Xring,Yring,Xdisc,Ydisc):
     # Figure
@@ -121,7 +122,7 @@ def CRD3_PLOT(Xring,Yring,Xdisc,Ydisc):
     Cheight = 1.2*spec.Content['Rbd']/len(spec)
     Nrow = len(spec)*Cheight
     for i in range(0,len(spec)):
-        plt.text(spec.Content['X0'],spec.Content['Y0']+Nrow/2-Cheight*i,"%s=%s"%(spec.index[i],spec.Content[i]),verticalalignment='center', horizontalalignment='center', color='black', fontsize="x-small")
+        plt.text(spec.Content['X0'],spec.Content['Y0']+Nrow/2-Cheight*i,"%s = %s[%s], %s"%(spec.index[i],spec.Content[i],spec.Unit[i],spec.Remark[i]),verticalalignment='center', horizontalalignment='center', color='black', fontsize="x-small")
     # Figure
     Result = os.path.join(spec.Content['WorkingDirectory'], f'Result.png')
     plt.savefig(Result,dpi=100)
@@ -218,7 +219,7 @@ window = sg.Window('CRD3',layout,icon="CRD3.ico")
 
 while True:
     event, values = window.read()
-    spec = pd.DataFrame(columns=['Parameter','Content','Remark'])
+    spec = pd.DataFrame(columns=['Parameter','Content','Unit','Remark'])
     spec = spec.set_index('Parameter')
 
     try:
