@@ -2,6 +2,15 @@
 _Cycloidal Eccentric Reducer Designer 3 - with Python3_
 
 
+
+## Reducer Design Example with Solidworks
+
+* Applying Top-Down Design Criteria
+* Youtube : https://youtu.be/mQp8NB-AJ2k
+* Data : `./Example_Solidworks`
+
+
+
 ## Using on PC
 
 * Install python3 and git
