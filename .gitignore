@@ -2,4 +2,5 @@
 Result/
 dist/
 build/
+__pycache__/
 CRD3.zip
