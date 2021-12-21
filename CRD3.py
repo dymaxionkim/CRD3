@@ -3,6 +3,7 @@ import PySimpleGUI as sg
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import ezdxf
 
 def Transform(Xinput,Yinput,Xmove,Ymove):
     Xoutput = Xinput + Xmove
@@ -74,14 +75,6 @@ def Parameters():
     spec.loc['Xpin']=[(spec.Content['Rbd']+spec.Content['bearing_dia']/2)/2,'Position of Pin']
     spec.loc['Ypin']=[0.0,'Position of Pin']
 
-def Parameters2():
-    spec.loc['alphaR']=[alphaR,'the angular position of the starting contact point and the current contact point of the base and the rolling circle in relation to the centre of the base circle for Ring']
-    spec.loc['betaR']=[betaR,'the swivel angle of the rolling circle for Ring']
-    spec.loc['phiR']=[phiR,'The Auxiliary Angle for Ring']
-    spec.loc['alphaD']=[alphaD,'the angular position of the starting contact point and the current contact point of the base and the rolling circle in relation to the centre of the base circle for Disc']
-    spec.loc['betaD']=[betaD,'the swivel angle of the rolling circle for Disc']
-    spec.loc['phiD']=[phiD,'The Auxiliary Angle for Disc']
-
 def CRD3_PLOT(Xring,Yring,Xdisc,Ydisc):
     # Figure
     fig = plt.figure(figsize=(8,8))
@@ -134,6 +127,74 @@ def CRD3_PLOT(Xring,Yring,Xdisc,Ydisc):
     plt.savefig(Result,dpi=100)
     plt.show()
 
+def SaveDXF(Xring,Yring,Xdisc,Ydisc):
+    doc = ezdxf.new('R2000')
+    msp = doc.modelspace()
+    # Tooth of Disc
+    Xdisc1,Ydisc1 = Transform(Xdisc,Ydisc,spec.Content['X0']+spec.Content['ea'],spec.Content['Y0'])
+    cpoint1D = [(Xdisc1[0],Ydisc1[0])]
+    for i in range(0,len(Xdisc1)) :
+        cpoint1D.append((Xdisc1[i],Ydisc1[i]))
+    msp.add_spline(cpoint1D,dxfattribs={'color':4})
+    # Tooth of Ring Gear
+    Xring1,Yring1 = Transform(Xring,Yring,spec.Content['X0'],spec.Content['Y0'])
+    cpoint1R = [(Xring1[0],Yring1[0])]
+    for i in range(0,len(Xring1)) :
+        cpoint1R.append((Xring1[i],Yring1[i]))
+    msp.add_spline(cpoint1R)
+    # Base Circles
+    msp.add_circle((spec.Content['X0']+spec.Content['ea'],spec.Content['Y0']),radius=spec.Content['Rbd'],dxfattribs={'color':4,'linetype':'DASHED'})
+    msp.add_circle((spec.Content['X0'],spec.Content['Y0']),radius=spec.Content['Rbr'],dxfattribs={'color':0,'linetype':'DASHED'})
+    # Bearing Circles
+    msp.add_circle((spec.Content['X0']+spec.Content['ea'],spec.Content['Y0']),radius=spec.Content['bearing_dia']/2,dxfattribs={'color':4})
+    msp.add_circle((spec.Content['X0'],spec.Content['Y0']),radius=spec.Content['input_dia']/2)
+    # Pin holes
+    X_pinhole_cen1 = spec.Content['X0']+spec.Content['Xpin']+spec.Content['ea']
+    Y_pinhole_cen1 = spec.Content['Y0']+spec.Content['Ypin']
+    X_pinhole_cen2,Y_pinhole_cen2 = Transform(X_pinhole_cen1,Y_pinhole_cen1,-spec.Content['X0']-spec.Content['ea'],-spec.Content['Y0'])
+    for i in range(0,spec.Content['pins']):
+        X_pinhole_cen3,Y_pinhole_cen3 = Rotation(X_pinhole_cen2,Y_pinhole_cen2,spec.Content['angle_pins'],i)
+        X_pinhole_cen4,Y_pinhole_cen4 = Transform(X_pinhole_cen3,Y_pinhole_cen3,spec.Content['X0']+spec.Content['ea'],spec.Content['Y0'])
+        msp.add_circle((X_pinhole_cen4,Y_pinhole_cen4),radius=spec.Content['pin_hole_dia']/2,dxfattribs={'color':4})
+    # Pins
+    X_pin_cen1 = spec.Content['X0']+spec.Content['Xpin']
+    Y_pin_cen1 = spec.Content['Y0']+spec.Content['Ypin']
+    X_pin_cen2,Y_pin_cen2 = Transform(X_pin_cen1,Y_pin_cen1,-spec.Content['Y0'],-spec.Content['Y0'])
+    for i in range(0,spec.Content['pins']):
+        X_pin_cen3,Y_pin_cen3 = Rotation(X_pin_cen2,Y_pin_cen2,spec.Content['angle_pins'],i)
+        X_pin_cen4,Y_pin_cen4 = Transform(X_pin_cen3,Y_pin_cen3,spec.Content['X0'],spec.Content['Y0'])
+        msp.add_circle((X_pin_cen4,Y_pin_cen4),radius=spec.Content['pin_dia']/2,dxfattribs={'color':6})
+    # Deco for Ring Gear
+    X_START_RING = spec.Content['Rbr']+8*spec.Content['h']+spec.Content['X0']
+    Y_START_RING = spec.Content['Y0']
+    X_END_RING = spec.Content['Rbr']+spec.Content['X0']
+    Y_END_RING = spec.Content['Y0']
+    msp.add_line([X_START_RING,Y_START_RING],[X_END_RING,Y_END_RING])
+    X_START_RING2,Y_START_RING2 = Transform(X_START_RING,Y_START_RING,-spec.Content['X0'],-spec.Content['Y0'])
+    X_START_RING3,Y_START_RING3 = Rotation(X_START_RING2,Y_START_RING2,2*np.pi/spec.Content['zr'],1)
+    X_START_RING4,Y_START_RING4 = Transform(X_START_RING3,Y_START_RING3,spec.Content['X0'],spec.Content['Y0'])
+    X_END_RING2,Y_END_RING2 = Transform(X_END_RING,Y_END_RING,-spec.Content['X0'],-spec.Content['Y0'])
+    X_END_RING3,Y_END_RING3 = Rotation(X_END_RING2,Y_END_RING2,2*np.pi/spec.Content['zr'],1)
+    X_END_RING4,Y_END_RING4 = Transform(X_END_RING3,Y_END_RING3,spec.Content['X0'],spec.Content['Y0'])
+    msp.add_line([X_START_RING4,Y_START_RING4],[X_END_RING4,Y_END_RING4])
+    msp.add_arc(center=(spec.Content['X0'],spec.Content['Y0']), radius=spec.Content['Rbr']+8*spec.Content['h'], start_angle=0, end_angle=360/spec.Content['zr'])
+    # Deco for Eccentric Disc
+    X_START_DISC = spec.Content['Rbd']-8*spec.Content['h']+spec.Content['X0']+spec.Content['ea']
+    Y_START_DISC = spec.Content['Y0']
+    X_END_DISC = spec.Content['Rbd']+spec.Content['X0']+spec.Content['ea']
+    Y_END_DISC = spec.Content['Y0']
+    msp.add_line([X_START_DISC,Y_START_DISC],[X_END_DISC,Y_END_DISC],dxfattribs={'color':4})
+    X_START_DISC2,Y_START_DISC2 = Transform(X_START_DISC,Y_START_DISC,-spec.Content['X0']-spec.Content['ea'],-spec.Content['Y0'])
+    X_START_DISC3,Y_START_DISC3 = Rotation(X_START_DISC2,Y_START_DISC2,2*np.pi/spec.Content['zd'],1)
+    X_START_DISC4,Y_START_DISC4 = Transform(X_START_DISC3,Y_START_DISC3,spec.Content['X0']+spec.Content['ea'],spec.Content['Y0'])
+    X_END_DISC2,Y_END_DISC2 = Transform(X_END_DISC,Y_END_DISC,-spec.Content['X0']-spec.Content['ea'],-spec.Content['Y0'])
+    X_END_DISC3,Y_END_DISC3 = Rotation(X_END_DISC2,Y_END_DISC2,2*np.pi/spec.Content['zd'],1)
+    X_END_DISC4,Y_END_DISC4 = Transform(X_END_DISC3,Y_END_DISC3,spec.Content['X0']+spec.Content['ea'],spec.Content['Y0'])
+    msp.add_line([X_START_DISC4,Y_START_DISC4],[X_END_DISC4,Y_END_DISC4],dxfattribs={'color':4})
+    msp.add_arc(center=(spec.Content['X0']+spec.Content['ea'],spec.Content['Y0']), radius=spec.Content['Rbd']-8*spec.Content['h'], start_angle=0, end_angle=360/spec.Content['zd'] ,dxfattribs={'color':4})
+    # Output
+    Result = os.path.join(spec.Content['WorkingDirectory'], f'Result.dxf')
+    doc.saveas(Result)
 
 ##############################
 # GUI
@@ -172,9 +233,9 @@ while True:
         Xring,Yring,alphaR,betaR,phiR = HypoTooth(spec.Content['thetaR'],spec.Content['point'],spec.Content['Rar'],spec.Content['Rbr'],spec.Content['er'],spec.Content['qr'])
         # Hypocycloid-like Tooth of Disc
         Xdisc,Ydisc,alphaD,betaD,phiD = HypoTooth(spec.Content['thetaD'],spec.Content['point'],spec.Content['Rad'],spec.Content['Rbd'],spec.Content['ed'],spec.Content['qd'])
-        #Parameters2()
-        CRD3_PLOT(Xring,Yring,Xdisc,Ydisc)
         Result = os.path.join(spec.Content['WorkingDirectory'],f'Result.csv')
         spec.to_csv(Result,header=True,index=True)
+        SaveDXF(Xring,Yring,Xdisc,Ydisc)
+        CRD3_PLOT(Xring,Yring,Xdisc,Ydisc)
 window.close()
 
