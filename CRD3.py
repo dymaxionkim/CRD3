@@ -74,6 +74,13 @@ def Parameters():
     spec.loc['Xpin']=[(spec.Content['Rbd']+spec.Content['bearing_dia']/2)/2,'Position of Pin']
     spec.loc['Ypin']=[0.0,'Position of Pin']
 
+def Parameters2():
+    spec.loc['alphaR']=[alphaR,'the angular position of the starting contact point and the current contact point of the base and the rolling circle in relation to the centre of the base circle for Ring']
+    spec.loc['betaR']=[betaR,'the swivel angle of the rolling circle for Ring']
+    spec.loc['phiR']=[phiR,'The Auxiliary Angle for Ring']
+    spec.loc['alphaD']=[alphaD,'the angular position of the starting contact point and the current contact point of the base and the rolling circle in relation to the centre of the base circle for Disc']
+    spec.loc['betaD']=[betaD,'the swivel angle of the rolling circle for Disc']
+    spec.loc['phiD']=[phiD,'The Auxiliary Angle for Disc']
 
 def CRD3_PLOT(Xring,Yring,Xdisc,Ydisc):
     # Figure
@@ -83,16 +90,18 @@ def CRD3_PLOT(Xring,Yring,Xdisc,Ydisc):
     plt.grid(True)
     # Plot Ring
     circle = np.linspace(0.0,2*np.pi,360)
-    plt.plot(spec.Content['Rbr']*np.cos(circle),spec.Content['Rbr']*np.sin(circle),':',linewidth=1,color='grey')
+    plt.plot(spec.Content['Rbr']*np.cos(circle)+spec.Content['X0'],spec.Content['Rbr']*np.sin(circle)+spec.Content['Y0'],':',linewidth=1,color='grey')
+    Xring1,Yring1 = Transform(Xring,Yring,spec.Content['X0'],spec.Content['Y0'])
     for i in range(0,int(spec.Content['zr'])):
-        Xring1,Yring1 = TransRotation(spec.Content['X0'],spec.Content['Y0'],Xring,Yring,i*spec.Content['thetaR'])
-        plt.plot(Xring1,Yring1,'-',linewidth=1.5,color='black')
+        Xring2,Yring2 = TransRotation(spec.Content['X0'],spec.Content['Y0'],Xring1,Yring1,i*spec.Content['thetaR'])
+        plt.plot(Xring2,Yring2,'-',linewidth=1.5,color='black')
     # Plot Disc
-    plt.plot(spec.Content['Rbd']*np.cos(circle)+spec.Content['ea'],spec.Content['Rbd']*np.sin(circle),':',linewidth=1,color='grey')
+    plt.plot(spec.Content['Rbd']*np.cos(circle)+spec.Content['ea']+spec.Content['X0'],spec.Content['Rbd']*np.sin(circle)+spec.Content['Y0'],':',linewidth=1,color='grey')
+    Xdisc1,Ydisc1 = Transform(Xdisc,Ydisc,spec.Content['X0'],spec.Content['Y0'])
     for i in range(0,int(spec.Content['zd'])):
-        Xdisc1,Ydisc1 = TransRotation(spec.Content['X0'],spec.Content['Y0'],Xdisc,Ydisc,i*spec.Content['thetaD'])
-        Xdisc2,Ydisc2 = Transform(Xdisc1,Ydisc1,spec.Content['ea'],0)
-        plt.plot(Xdisc2,Ydisc2,'-',linewidth=1.5,color='blue')
+        Xdisc2,Ydisc2 = TransRotation(spec.Content['X0'],spec.Content['Y0'],Xdisc1,Ydisc1,i*spec.Content['thetaD'])
+        Xdisc3,Ydisc3 = Transform(Xdisc2,Ydisc2,spec.Content['ea'],0)
+        plt.plot(Xdisc3,Ydisc3,'-',linewidth=1.5,color='blue')
     # Bearing on Eccentric Disc
     XX,YY = Circle(spec.Content['bearing_dia'],spec.Content['seg_circle'])
     XX,YY = Transform(XX,YY,spec.Content['X0']+spec.Content['ea'],spec.Content['Y0'])
@@ -115,6 +124,14 @@ def CRD3_PLOT(Xring,Yring,Xdisc,Ydisc):
         XX2,YY2 = Rotation(XX,YY,spec.Content['angle_pins'],i)
         XX2,YY2 = Transform(XX2,YY2,spec.Content['X0'],spec.Content['Y0'])
         plt.plot(XX2,YY2, '-', linewidth=1.5, color='orange')
+    # Annotate
+    Cheight = 1.2*spec.Content['Rbd']/len(spec)
+    Nrow = len(spec)*Cheight
+    for i in range(0,len(spec)):
+        plt.text(spec.Content['X0'],spec.Content['Y0']+Nrow/2-Cheight*i,"%s=%s"%(spec.index[i],spec.Content[i]),verticalalignment='center', horizontalalignment='center', color='black', fontsize="x-small")
+    # Figure
+    Result = os.path.join(spec.Content['WorkingDirectory'], f'Result.png')
+    plt.savefig(Result,dpi=100)
     plt.show()
 
 
@@ -155,6 +172,9 @@ while True:
         Xring,Yring,alphaR,betaR,phiR = HypoTooth(spec.Content['thetaR'],spec.Content['point'],spec.Content['Rar'],spec.Content['Rbr'],spec.Content['er'],spec.Content['qr'])
         # Hypocycloid-like Tooth of Disc
         Xdisc,Ydisc,alphaD,betaD,phiD = HypoTooth(spec.Content['thetaD'],spec.Content['point'],spec.Content['Rad'],spec.Content['Rbd'],spec.Content['ed'],spec.Content['qd'])
+        #Parameters2()
         CRD3_PLOT(Xring,Yring,Xdisc,Ydisc)
+        Result = os.path.join(spec.Content['WorkingDirectory'],f'Result.csv')
+        spec.to_csv(Result,header=True,index=True)
 window.close()
 
