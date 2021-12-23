@@ -3,14 +3,6 @@ _Cycloidal Eccentric Reducer Designer 3 - with Python3_
 
 
 
-## Reducer Design Example with Solidworks
-
-* Applying Top-Down Design Criteria
-* Youtube : https://youtu.be/mQp8NB-AJ2k
-* Data : `./Example_Solidworks`
-
-
-
 ## Using on PC
 
 * Install python3 and git
@@ -77,7 +69,23 @@ pyinstaller --icon=CRD3.ico -w -F CRD3.py
 * __Y0__ : Center Position
 * __Bearing Size Factor__ : Center Hole Size Factor on Disc
 * __Pin Hole Size Factor__ : Pin Hole Size Factor on Disc
+* __Bearing Diameter__ : Inner Circle's Diameter of Disc
+* __Pin Diameter__ : Pins Diamter
+* __Pin Position__ : Radius of Pins' Pitch Circle
 * __pins__ : Number of PinsPins
+
+### Buttons
+
+* __Mode1__ : Module based Input Mode
+* __Mode2__ : Dimension based Input Mode
+
+## Reducer Design Example with Solidworks
+
+* Applying Top-Down Design Criteria
+* Youtube : https://youtu.be/mQp8NB-AJ2k
+* Data : `./Example_Solidworks`
+
+![](./img/Solidworks.png)
 
 
 ## Thank you!
