@@ -79,7 +79,11 @@ pyinstaller --icon=CRD3.ico -w -F CRD3.py
 * __Mode1__ : Module based Input Mode
 * __Mode2__ : Dimension based Input Mode
 
-## Reducer Design Example with Solidworks
+
+
+## Reducer Design Example
+
+### with Solidworks
 
 * Applying Top-Down Design Criteria
 * Youtube : https://youtu.be/mQp8NB-AJ2k
@@ -87,5 +91,11 @@ pyinstaller --icon=CRD3.ico -w -F CRD3.py
 
 ![](./img/Solidworks.png)
 
+### with Creo
+
+* Applying Top-Down Design Criteria
+* Data : `./Example_Creo`
+
+![](./img/Creo.png)
 
 ## Thank you!
