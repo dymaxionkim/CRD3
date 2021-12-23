@@ -160,13 +160,19 @@ def SaveDXF(Xring,Yring,Xdisc,Ydisc):
     cpoint1D = [(Xdisc1[0],Ydisc1[0])]
     for i in range(0,len(Xdisc1)) :
         cpoint1D.append((Xdisc1[i],Ydisc1[i]))
-    msp.add_spline(cpoint1D,dxfattribs={'color':4})
+    if values['-spline-']:
+        msp.add_spline(cpoint1D,dxfattribs={'color':4})
+    else:
+        msp.add_polyline2d(cpoint1D,dxfattribs={'color':4})
     # Tooth of Ring Gear
     Xring1,Yring1 = Transform(Xring,Yring,spec.Content['X0'],spec.Content['Y0'])
     cpoint1R = [(Xring1[0],Yring1[0])]
     for i in range(0,len(Xring1)) :
         cpoint1R.append((Xring1[i],Yring1[i]))
-    msp.add_spline(cpoint1R)
+    if values['-spline-']:
+        msp.add_spline(cpoint1R)
+    else:
+        msp.add_polyline2d(cpoint1R)
     # Base Circles
     msp.add_circle((spec.Content['X0']+spec.Content['ea'],spec.Content['Y0']),radius=spec.Content['Rbd'],dxfattribs={'color':4})
     msp.add_circle((spec.Content['X0'],spec.Content['Y0']),radius=spec.Content['Rbr'],dxfattribs={'color':0})
@@ -240,6 +246,7 @@ col = [[sg.Text('Working Directory :',size=(15,1)), sg.Input('./Result/',key='-W
         [sg.Text('Pin Diameter =',size=(32,1)),sg.Input(7.36,key='-pin_dia-',size=(10,1),disabled=True),sg.Text('[mm]')],
         [sg.Text('Pin Position, Xpin =',size=(32,1)),sg.Input(31.2,key='-Xpin-',size=(10,1),disabled=True),sg.Text('[mm]')],
         [sg.Text('Number of Pins, pins =',size=(32,1)),sg.Input(16,key='-pins-',size=(10,1)),sg.Text('[ea]')],
+        [sg.Text('DXF Output Option : '),sg.Radio('Spline','RADIO1',key='-spline-',default=True),sg.Radio('Polyline','RADIO1',key='-polyline-')],
         [sg.Button('Mode1',key='-Mode1-',disabled=True),sg.Button('Mode2',key='-Mode2-',disabled=False),sg.Button('Update',key='-Update-'),sg.Button('Run'), sg.Button('Exit')]]
 
 layout = [[col]]
