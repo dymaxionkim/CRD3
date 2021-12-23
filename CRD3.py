@@ -43,38 +43,62 @@ def HypoTooth(theta,point,Ra,Rb,e,q):
 
 # Read Input Parameters
 def Parameters():
-    spec.loc['m']=[float(values['-m-']),'mm','Module']
+    spec.loc['WorkingDirectory']=[values['-WorkingDirectoty-'],'','Working Directory']
     spec.loc['zr']=[int(values['-zr-']),'ea','Number of Teeth Ring']
     spec.loc['ze']=[int(values['-ze-']),'ea','Diff of Teeth']
     spec.loc['h']=[float(values['-h-']),'','Teeth Height Factor (0~1)']
     spec.loc['point']=[int(values['-point-']),'ea','Control Points for One Tooth']
     spec.loc['X0']=[float(values['-X0-']),'mm','Center Position']
     spec.loc['Y0']=[float(values['-Y0-']),'mm','Center Position']
-    spec.loc['WorkingDirectory']=[values['-WorkingDirectoty-'],'','Working Directory']
-    spec.loc['BEARING_FACTOR']=[float(values['-BEARING_FACTOR-']),'','Bearing Factorc']
-    spec.loc['PIN_HOLE_FACTOR']=[float(values['-PIN_HOLE_FACTOR-']),'','Pin Hole Factor']
     spec.loc['zd']=[spec.Content['zr']-spec.Content['ze'],'ea','Number of Teeth Disc']
-    spec.loc['Rbr']=[spec.Content['m']*spec.Content['zr'],'mm','Radius of Base Circle for Ring']
-    spec.loc['Rbd']=[spec.Content['m']*spec.Content['zd'],'mm','Radius of Base Circle for Disc']
-    spec.loc['Rar']=[spec.Content['Rbr']/spec.Content['zr'],'mm','Radius of Rolling Circle for Ring']
-    spec.loc['Rad']=[spec.Content['Rbd']/spec.Content['zd'],'mm','Radius of Rolling Circle for Disc']
     spec.loc['thetaR']=[2*np.pi/spec.Content['zr'],'rad','Pitch Angle of Ring']
     spec.loc['thetaD']=[2*np.pi/spec.Content['zd'],'rad','Pitch Angle of Disc']
-    spec.loc['qr']=[(np.pi*spec.Content['Rbr']/spec.Content['zr'])/2,'mm','Radius of Roller for Ring']
-    spec.loc['qd']=[(np.pi*spec.Content['Rbr']/spec.Content['zr'])/2,'mm','Radius of Roller for Disc (equidistant distance)']
-    spec.loc['er']=[spec.Content['Rar']*spec.Content['h'],'mm','Eccentricity for Ring']
-    spec.loc['ed']=[spec.Content['Rad']*spec.Content['h'],'mm','Eccentricity for Disc']
-    spec.loc['ea']=[spec.Content['Rbr']-spec.Content['Rbd'],'mm','Actual Eccentricity for Disc']
     spec.loc['seg_circle']=[360,'ea','Segmentation Points of Circle']
-    spec.loc['bearing_dia']=[2*spec.Content['Rbd']*spec.Content['BEARING_FACTOR'],'mm','Bearing Diameter']
-    spec.loc['pin_hole_dia']=[(spec.Content['Rbd']-spec.Content['bearing_dia']/2)*spec.Content['PIN_HOLE_FACTOR'],'mm','Pin Hole Diameter']
-    spec.loc['pin_dia']=[spec.Content['pin_hole_dia']-2*spec.Content['ea'],'mm','Pin Diameter']
     spec.loc['pins']=[int(values['-pins-']),'ea','Number of Pins']
     spec.loc['angle_pins']=[2*np.pi/spec.Content['pins'],'rad','Pin Pitch Angle']
-    spec.loc['input_dia']=[spec.Content['bearing_dia']-2*spec.Content['ea'],'mm','Input Shaft Diameter']
-    spec.loc['Xpin']=[(spec.Content['Rbd']+spec.Content['bearing_dia']/2)/2,'mm','Position of Pin']
-    spec.loc['Ypin']=[0.0,'mm','Position of Pin']
     spec.loc['I']=[spec.Content['zd']/(spec.Content['zd']-spec.Content['zr']),'','Reduction Ratio']
+    spec.loc['Ypin']=[0.0,'mm','Position of Pin']
+    if mode==1:
+        spec.loc['m']=[float(values['-m-']),'mm','Module']
+        spec.loc['BEARING_FACTOR']=[float(values['-BEARING_FACTOR-']),'','Bearing Factorc']
+        spec.loc['PIN_HOLE_FACTOR']=[float(values['-PIN_HOLE_FACTOR-']),'','Pin Hole Factor']
+        spec.loc['Rbr']=[spec.Content['m']*spec.Content['zr'],'mm','Radius of Base Circle for Ring']
+        spec.loc['Rbd']=[spec.Content['m']*spec.Content['zd'],'mm','Radius of Base Circle for Disc']
+        spec.loc['bearing_dia']=[2*spec.Content['Rbd']*spec.Content['BEARING_FACTOR'],'mm','Bearing Diameter']
+        spec.loc['pin_hole_dia']=[(spec.Content['Rbd']-spec.Content['bearing_dia']/2)*spec.Content['PIN_HOLE_FACTOR'],'mm','Pin Hole Diameter']
+        spec.loc['ea']=[spec.Content['Rbr']-spec.Content['Rbd'],'mm','Actual Eccentricity for Disc']
+        spec.loc['pin_dia']=[spec.Content['pin_hole_dia']-2*spec.Content['ea'],'mm','Pin Diameter']
+        spec.loc['Xpin']=[(spec.Content['Rbd']+spec.Content['bearing_dia']/2)/2,'mm','Position of Pin']
+        spec.loc['Rar']=[spec.Content['Rbr']/spec.Content['zr'],'mm','Radius of Rolling Circle for Ring']
+        spec.loc['Rad']=[spec.Content['Rbd']/spec.Content['zd'],'mm','Radius of Rolling Circle for Disc']
+    elif mode==2:
+        spec.loc['Rbr']=[float(values['-Rbr-']),'mm','Radius of Base Circle for Ring']
+        spec.loc['bearing_dia']=[float(values['-bearing_dia-']),'mm','Bearing Diameter']
+        spec.loc['pin_dia']=[float(values['-pin_dia-']),'mm','Pin Diameter']
+        spec.loc['Xpin']=[float(values['-Xpin-']),'mm','Position of Pin']
+        spec.loc['m']=[spec.Content['Rbr']/spec.Content['zr'],'mm','Module']
+        spec.loc['Rar']=[spec.Content['Rbr']/spec.Content['zr'],'mm','Radius of Rolling Circle for Ring']
+        spec.loc['Rbd']=[spec.Content['m']*spec.Content['zd'],'mm','Radius of Base Circle for Disc']
+        spec.loc['Rad']=[spec.Content['Rbd']/spec.Content['zd'],'mm','Radius of Rolling Circle for Disc']
+        spec.loc['ea']=[spec.Content['Rbr']-spec.Content['Rbd'],'mm','Actual Eccentricity for Disc']
+        spec.loc['pin_hole_dia']=[spec.Content['pin_dia']+2*spec.Content['ea'],'mm','Pin Hole Diameter']
+        spec.loc['BEARING_FACTOR']=[spec.Content['bearing_dia']/(2*spec.Content['Rbd']),'','Bearing Factorc']
+        spec.loc['PIN_HOLE_FACTOR']=[spec.Content['pin_hole_dia']/(spec.Content['Rbd']-spec.Content['bearing_dia']/2),'','Pin Hole Factor']
+    spec.loc['er']=[spec.Content['Rar']*spec.Content['h'],'mm','Eccentricity for Ring']
+    spec.loc['ed']=[spec.Content['Rad']*spec.Content['h'],'mm','Eccentricity for Disc']
+    spec.loc['qr']=[(np.pi*spec.Content['Rbr']/spec.Content['zr'])/2,'mm','Radius of Roller for Ring']
+    spec.loc['qd']=[(np.pi*spec.Content['Rbd']/spec.Content['zd'])/2,'mm','Radius of Roller for Disc (equidistant distance)']
+    spec.loc['input_dia']=[spec.Content['bearing_dia']-2*spec.Content['ea'],'mm','Input Shaft Diameter']
+
+def Update():
+    Parameters()
+    window['-m-'].update(spec.Content['m'])
+    window['-BEARING_FACTOR-'].update(spec.Content['BEARING_FACTOR'])
+    window['-PIN_HOLE_FACTOR-'].update(spec.Content['PIN_HOLE_FACTOR'])
+    window['-Rbr-'].update(spec.Content['Rbr'])
+    window['-bearing_dia-'].update(spec.Content['bearing_dia'])
+    window['-pin_dia-'].update(spec.Content['pin_dia'])
+    window['-Xpin-'].update(spec.Content['Xpin'])
 
 def CRD3_PLOT(Xring,Yring,Xdisc,Ydisc):
     # Figure
@@ -202,42 +226,71 @@ def SaveDXF(Xring,Yring,Xdisc,Ydisc):
 # GUI
 sg.theme('Default')
 col = [[sg.Text('Working Directory :',size=(15,1)), sg.Input('./Result/',key='-WorkingDirectoty-',size=(16,1)), sg.FolderBrowse()],
-        [sg.Text('Module, m =',size = (32,1)),sg.Input(1.0,key='-m-',size = (10,1)),sg.Text('[mm], (>0)')],
-       [sg.Text('Number of Teeth Ring, zr =',size = (32,1)),sg.Input(40,key='-zr-',size = (10,1)),sg.Text('[ea], (Even Number)')],
-       [sg.Text('Diff. of Ring and Disc, ze =',size = (32,1)),sg.Input(1,key='-ze-',size = (10,1)),sg.Text('[ea]')],
-       [sg.Text('Teeth Height Factor, h =',size = (32,1)),sg.Input(0.7,key='-h-',size = (10,1)),sg.Text('(0~1)')],
-       [sg.Text('Control Points for One Tooth, point =',size = (32,1)),sg.Input(50,key='-point-',size = (10,1)),sg.Text('[ea]')],
-       [sg.Text('Center Position, X0 =',size = (32,1)),sg.Input(0.0,key='-X0-',size = (10,1)),sg.Text('[mm]')],
-       [sg.Text('Center Position, Y0 =',size = (32,1)),sg.Input(0.0,key='-Y0-',size = (10,1)),sg.Text('[mm]')],
-       [sg.Text('Bearing Size Factor =',size = (32,1)),sg.Input(0.6,key='-BEARING_FACTOR-',size = (10,1)),sg.Text('(0~1)')],
-       [sg.Text('Pin Hole Size Factor =',size = (32,1)),sg.Input(0.6,key='-PIN_HOLE_FACTOR-',size = (10,1)),sg.Text('(0~1)')],
-       [sg.Text('Number of Pins, pins =',size = (32,1)),sg.Input(16,key='-pins-',size = (10,1)),sg.Text('[ea]')],
-       [sg.Button('Run'), sg.Button('Exit')]]
+        [sg.Text('Module, m =',size=(32,1)),sg.Input(1.0,key='-m-',size = (10,1)),sg.Text('[mm], (>0)')],
+        [sg.Text('Radius of Base Circle for Ring, Rbr =',size=(32,1)),sg.Input(40.0,key='-Rbr-',size=(10,1),disabled=True),sg.Text('[mm]')],
+        [sg.Text('Number of Teeth Ring, zr =',size=(32,1)),sg.Input(40,key='-zr-',size=(10,1)),sg.Text('[ea], (Even Number)')],
+        [sg.Text('Diff. of Ring and Disc, ze =',size=(32,1)),sg.Input(1,key='-ze-',size=(10,1)),sg.Text('[ea]')],
+        [sg.Text('Teeth Height Factor, h =',size=(32,1)),sg.Input(0.7,key='-h-',size=(10,1)),sg.Text('(0~1)')],
+        [sg.Text('Control Points for One Tooth, point =',size = (32,1)),sg.Input(50,key='-point-',size=(10,1)),sg.Text('[ea]')],
+        [sg.Text('Center Position, X0 =',size=(32,1)),sg.Input(0.0,key='-X0-',size=(10,1)),sg.Text('[mm]')],
+        [sg.Text('Center Position, Y0 =',size=(32,1)),sg.Input(0.0,key='-Y0-',size=(10,1)),sg.Text('[mm]')],
+        [sg.Text('Bearing Size Factor =',size=(32,1)),sg.Input(0.6,key='-BEARING_FACTOR-',size=(10,1)),sg.Text('(0~1)')],
+        [sg.Text('Pin Hole Size Factor =',size=(32,1)),sg.Input(0.6,key='-PIN_HOLE_FACTOR-',size=(10,1)),sg.Text('(0~1)')],
+        [sg.Text('Bearing Diameter =',size=(32,1)),sg.Input(46.8,key='-bearing_dia-',size=(10,1),disabled=True),sg.Text('[mm]')],
+        [sg.Text('Pin Diameter =',size=(32,1)),sg.Input(7.36,key='-pin_dia-',size=(10,1),disabled=True),sg.Text('[mm]')],
+        [sg.Text('Pin Position, Xpin =',size=(32,1)),sg.Input(31.2,key='-Xpin-',size=(10,1),disabled=True),sg.Text('[mm]')],
+        [sg.Text('Number of Pins, pins =',size=(32,1)),sg.Input(16,key='-pins-',size=(10,1)),sg.Text('[ea]')],
+        [sg.Button('Mode1',key='-Mode1-',disabled=True),sg.Button('Mode2',key='-Mode2-',disabled=False),sg.Button('Update',key='-Update-'),sg.Button('Run'), sg.Button('Exit')]]
 
 layout = [[col]]
 window = sg.Window('CRD3',layout,icon="CRD3.ico")
 
+spec = pd.DataFrame(columns=['Parameter','Content','Unit','Remark'])
+spec = spec.set_index('Parameter')
+
+mode = 1 # Input Mode Flag
+
 while True:
     event, values = window.read()
-    spec = pd.DataFrame(columns=['Parameter','Content','Unit','Remark'])
-    spec = spec.set_index('Parameter')
-
-    try:
-        Parameters()
-    except:
-        sg.popup('Type error.')
-
-    if event in (sg.WIN_CLOSED, 'Exit'):
+    if event in (sg.WIN_CLOSED,'Exit'):
         break
     elif event == 'Run':
-        os.makedirs(spec.Content['WorkingDirectory'],exist_ok=True)
+        Update()
         # Hypocycloid-like Tooth of Ring
         Xring,Yring,alphaR,betaR,phiR = HypoTooth(spec.Content['thetaR'],spec.Content['point'],spec.Content['Rar'],spec.Content['Rbr'],spec.Content['er'],spec.Content['qr'])
         # Hypocycloid-like Tooth of Disc
         Xdisc,Ydisc,alphaD,betaD,phiD = HypoTooth(spec.Content['thetaD'],spec.Content['point'],spec.Content['Rad'],spec.Content['Rbd'],spec.Content['ed'],spec.Content['qd'])
+        print(spec)
+        os.makedirs(spec.Content['WorkingDirectory'],exist_ok=True)
         Result = os.path.join(spec.Content['WorkingDirectory'],f'Result.csv')
         spec.to_csv(Result,header=True,index=True)
         SaveDXF(Xring,Yring,Xdisc,Ydisc)
         CRD3_PLOT(Xring,Yring,Xdisc,Ydisc)
+    elif event == '-Mode2-':
+        mode=2
+        Parameters()
+        window['-m-'].update(disabled=True)
+        window['-BEARING_FACTOR-'].update(disabled=True)
+        window['-PIN_HOLE_FACTOR-'].update(disabled=True)
+        window['-Rbr-'].update(disabled=False)
+        window['-bearing_dia-'].update(disabled=False)
+        window['-pin_dia-'].update(disabled=False)
+        window['-Xpin-'].update(disabled=False)
+        window['-Mode1-'].update(disabled=False)
+        window['-Mode2-'].update(disabled=True)
+    elif event == '-Mode1-':
+        mode=1
+        Parameters()
+        window['-m-'].update(disabled=False)
+        window['-BEARING_FACTOR-'].update(disabled=False)
+        window['-PIN_HOLE_FACTOR-'].update(disabled=False)
+        window['-Rbr-'].update(disabled=True)
+        window['-bearing_dia-'].update(disabled=True)
+        window['-pin_dia-'].update(disabled=True)
+        window['-Xpin-'].update(disabled=True)
+        window['-Mode1-'].update(disabled=True)
+        window['-Mode2-'].update(disabled=False)
+    elif event == '-Update-':
+        Update()
 window.close()
 
