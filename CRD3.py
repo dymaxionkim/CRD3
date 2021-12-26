@@ -42,7 +42,7 @@ def HypoTooth(theta,point,Ra,Rb,e,q):
     return Xh,Yh,alpha,beta,phi
 
 # Read Input Parameters
-def Parameters():
+def Parameters(STATE):
     spec.loc['WorkingDirectory']=[values['-WorkingDirectoty-'],'','Working Directory']
     spec.loc['zr']=[int(values['-zr-']),'ea','Number of Teeth Ring']
     spec.loc['ze']=[int(values['-ze-']),'ea','Diff of Teeth']
@@ -58,7 +58,7 @@ def Parameters():
     spec.loc['angle_pins']=[2*np.pi/spec.Content['pins'],'rad','Pin Pitch Angle']
     spec.loc['I']=[spec.Content['zd']/(spec.Content['zd']-spec.Content['zr']),'','Reduction Ratio']
     spec.loc['Ypin']=[0.0,'mm','Position of Pin']
-    if values['-module_based-']:
+    if STATE==1:
         spec.loc['m']=[float(values['-m-']),'mm','Module']
         spec.loc['BEARING_FACTOR']=[float(values['-BEARING_FACTOR-']),'','Bearing Factorc']
         spec.loc['PIN_HOLE_FACTOR']=[float(values['-PIN_HOLE_FACTOR-']),'','Pin Hole Factor']
@@ -71,7 +71,7 @@ def Parameters():
         spec.loc['Xpin']=[(spec.Content['Rbd']+spec.Content['bearing_dia']/2)/2,'mm','Position of Pin']
         spec.loc['Rar']=[spec.Content['Rbr']/spec.Content['zr'],'mm','Radius of Rolling Circle for Ring']
         spec.loc['Rad']=[spec.Content['Rbd']/spec.Content['zd'],'mm','Radius of Rolling Circle for Disc']
-    elif values['-dia_based-']:
+    elif STATE==0:
         spec.loc['Rbr']=[float(values['-Rbr-']),'mm','Radius of Base Circle for Ring']
         spec.loc['bearing_dia']=[float(values['-bearing_dia-']),'mm','Bearing Diameter']
         spec.loc['pin_dia']=[float(values['-pin_dia-']),'mm','Pin Diameter']
@@ -90,8 +90,7 @@ def Parameters():
     spec.loc['qd']=[(np.pi*spec.Content['Rbd']/spec.Content['zd'])/2,'mm','Radius of Roller for Disc (equidistant distance)']
     spec.loc['input_dia']=[spec.Content['bearing_dia']-2*spec.Content['ea'],'mm','Input Shaft Diameter']
 
-def Update():
-    Parameters()
+def UpdateValues():
     window['-m-'].update(spec.Content['m'])
     window['-BEARING_FACTOR-'].update(spec.Content['BEARING_FACTOR'])
     window['-PIN_HOLE_FACTOR-'].update(spec.Content['PIN_HOLE_FACTOR'])
@@ -99,6 +98,8 @@ def Update():
     window['-bearing_dia-'].update(spec.Content['bearing_dia'])
     window['-pin_dia-'].update(spec.Content['pin_dia'])
     window['-Xpin-'].update(spec.Content['Xpin'])
+
+def UpdateDisabled():
     if values['-module_based-']:
         window['-m-'].update(disabled=False)
         window['-BEARING_FACTOR-'].update(disabled=False)
@@ -287,6 +288,20 @@ while True:
         spec.to_csv(Result,header=True,index=True)
         SaveDXF(Xring,Yring,Xdisc,Ydisc)
         CRD3_PLOT(Xring,Yring,Xdisc,Ydisc)
-    elif event=='Update' or values['-module_based-'] or values['-dia_based-']:
-        Update()
+    elif event=='Update':
+        if values['-module_based-']:
+            Parameters(1)
+            UpdateValues()
+        elif values['-dia_based-']:
+            Parameters(0)
+            UpdateValues()
+        UpdateValues()
+    elif values['-module_based-']:
+        Parameters(0)
+        UpdateValues()
+        UpdateDisabled()
+    elif values['-dia_based-']:
+        Parameters(1)
+        UpdateValues()
+        UpdateDisabled()
 window.close()
