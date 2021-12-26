@@ -74,12 +74,6 @@ pyinstaller --icon=CRD3.ico -w -F CRD3.py
 * __Pin Position__ : Radius of Pins' Pitch Circle
 * __pins__ : Number of PinsPins
 
-### Buttons
-
-* __Mode1__ : Module based Input Mode
-* __Mode2__ : Dimension based Input Mode
-
-
 
 ## Reducer Design Example
 
