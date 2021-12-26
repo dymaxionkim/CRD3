@@ -278,7 +278,12 @@ while True:
     if event in (sg.WIN_CLOSED,'Exit'):
         break
     elif event=='Run':
-        Update()
+        if values['-module_based-']:
+            Parameters(1)
+            UpdateValues()
+        elif values['-dia_based-']:
+            Parameters(0)
+            UpdateValues()
         # Hypocycloid-like Tooth of Ring
         Xring,Yring,alphaR,betaR,phiR = HypoTooth(spec.Content['thetaR'],spec.Content['point'],spec.Content['Rar'],spec.Content['Rbr'],spec.Content['er'],spec.Content['qr'])
         # Hypocycloid-like Tooth of Disc
