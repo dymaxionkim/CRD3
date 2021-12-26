@@ -58,7 +58,7 @@ def Parameters():
     spec.loc['angle_pins']=[2*np.pi/spec.Content['pins'],'rad','Pin Pitch Angle']
     spec.loc['I']=[spec.Content['zd']/(spec.Content['zd']-spec.Content['zr']),'','Reduction Ratio']
     spec.loc['Ypin']=[0.0,'mm','Position of Pin']
-    if mode==1:
+    if values['-module_based-']:
         spec.loc['m']=[float(values['-m-']),'mm','Module']
         spec.loc['BEARING_FACTOR']=[float(values['-BEARING_FACTOR-']),'','Bearing Factorc']
         spec.loc['PIN_HOLE_FACTOR']=[float(values['-PIN_HOLE_FACTOR-']),'','Pin Hole Factor']
@@ -71,7 +71,7 @@ def Parameters():
         spec.loc['Xpin']=[(spec.Content['Rbd']+spec.Content['bearing_dia']/2)/2,'mm','Position of Pin']
         spec.loc['Rar']=[spec.Content['Rbr']/spec.Content['zr'],'mm','Radius of Rolling Circle for Ring']
         spec.loc['Rad']=[spec.Content['Rbd']/spec.Content['zd'],'mm','Radius of Rolling Circle for Disc']
-    elif mode==2:
+    elif values['-dia_based-']:
         spec.loc['Rbr']=[float(values['-Rbr-']),'mm','Radius of Base Circle for Ring']
         spec.loc['bearing_dia']=[float(values['-bearing_dia-']),'mm','Bearing Diameter']
         spec.loc['pin_dia']=[float(values['-pin_dia-']),'mm','Pin Diameter']
@@ -99,6 +99,22 @@ def Update():
     window['-bearing_dia-'].update(spec.Content['bearing_dia'])
     window['-pin_dia-'].update(spec.Content['pin_dia'])
     window['-Xpin-'].update(spec.Content['Xpin'])
+    if values['-module_based-']:
+        window['-m-'].update(disabled=False)
+        window['-BEARING_FACTOR-'].update(disabled=False)
+        window['-PIN_HOLE_FACTOR-'].update(disabled=False)
+        window['-Rbr-'].update(disabled=True)
+        window['-bearing_dia-'].update(disabled=True)
+        window['-pin_dia-'].update(disabled=True)
+        window['-Xpin-'].update(disabled=True)
+    elif values['-dia_based-']:
+        window['-m-'].update(disabled=True)
+        window['-BEARING_FACTOR-'].update(disabled=True)
+        window['-PIN_HOLE_FACTOR-'].update(disabled=True)
+        window['-Rbr-'].update(disabled=False)
+        window['-bearing_dia-'].update(disabled=False)
+        window['-pin_dia-'].update(disabled=False)
+        window['-Xpin-'].update(disabled=False)
 
 def CRD3_PLOT(Xring,Yring,Xdisc,Ydisc):
     # Figure
@@ -231,7 +247,8 @@ def SaveDXF(Xring,Yring,Xdisc,Ydisc):
 ##############################
 # GUI
 sg.theme('Default')
-col = [[sg.Text('Working Directory :',size=(15,1)), sg.Input('./Result/',key='-WorkingDirectoty-',size=(16,1)), sg.FolderBrowse()],
+col = [[sg.Text('Working Directory :',size=(15,1)),sg.Input('./Result/',key='-WorkingDirectoty-',size=(30,1)), sg.FolderBrowse()],
+        [sg.Text('# Input Mode : ',size=(12,1)),sg.Radio('Module_based','RADIO2',key='-module_based-',default=True,enable_events=True,size=(12,1)),sg.Radio('Dia_based','RADIO2',key='-dia_based-',enable_events=True,size=(12,1)),sg.Button('Update')],
         [sg.Text('Module, m =',size=(32,1)),sg.Input(1.0,key='-m-',size = (10,1)),sg.Text('[mm], (>0)')],
         [sg.Text('Radius of Base Circle for Ring, Rbr =',size=(32,1)),sg.Input(40.0,key='-Rbr-',size=(10,1),disabled=True),sg.Text('[mm]')],
         [sg.Text('Number of Teeth Ring, zr =',size=(32,1)),sg.Input(40,key='-zr-',size=(10,1)),sg.Text('[ea], (Even Number)')],
@@ -246,8 +263,8 @@ col = [[sg.Text('Working Directory :',size=(15,1)), sg.Input('./Result/',key='-W
         [sg.Text('Pin Diameter =',size=(32,1)),sg.Input(7.36,key='-pin_dia-',size=(10,1),disabled=True),sg.Text('[mm]')],
         [sg.Text('Pin Position, Xpin =',size=(32,1)),sg.Input(31.2,key='-Xpin-',size=(10,1),disabled=True),sg.Text('[mm]')],
         [sg.Text('Number of Pins, pins =',size=(32,1)),sg.Input(16,key='-pins-',size=(10,1)),sg.Text('[ea]')],
-        [sg.Text('DXF Output Option : '),sg.Radio('Spline','RADIO1',key='-spline-',default=True),sg.Radio('Polyline','RADIO1',key='-polyline-')],
-        [sg.Button('Mode1',key='-Mode1-',disabled=True),sg.Button('Mode2',key='-Mode2-',disabled=False),sg.Button('Update',key='-Update-'),sg.Button('Run'), sg.Button('Exit')]]
+        [sg.Text('# DXF Output Option : '),sg.Radio('Spline','RADIO1',key='-spline-',default=True),sg.Radio('Polyline','RADIO1',key='-polyline-')],
+        [sg.Button('Run'),sg.Button('Exit')]]
 
 layout = [[col]]
 window = sg.Window('CRD3',layout,icon="CRD3.ico")
@@ -255,49 +272,21 @@ window = sg.Window('CRD3',layout,icon="CRD3.ico")
 spec = pd.DataFrame(columns=['Parameter','Content','Unit','Remark'])
 spec = spec.set_index('Parameter')
 
-mode = 1 # Input Mode Flag
-
 while True:
-    event, values = window.read()
+    event,values=window.read()
     if event in (sg.WIN_CLOSED,'Exit'):
         break
-    elif event == 'Run':
+    elif event=='Run':
         Update()
         # Hypocycloid-like Tooth of Ring
         Xring,Yring,alphaR,betaR,phiR = HypoTooth(spec.Content['thetaR'],spec.Content['point'],spec.Content['Rar'],spec.Content['Rbr'],spec.Content['er'],spec.Content['qr'])
         # Hypocycloid-like Tooth of Disc
         Xdisc,Ydisc,alphaD,betaD,phiD = HypoTooth(spec.Content['thetaD'],spec.Content['point'],spec.Content['Rad'],spec.Content['Rbd'],spec.Content['ed'],spec.Content['qd'])
-        print(spec)
         os.makedirs(spec.Content['WorkingDirectory'],exist_ok=True)
         Result = os.path.join(spec.Content['WorkingDirectory'],f'Result.csv')
         spec.to_csv(Result,header=True,index=True)
         SaveDXF(Xring,Yring,Xdisc,Ydisc)
         CRD3_PLOT(Xring,Yring,Xdisc,Ydisc)
-    elif event == '-Mode2-':
-        mode=2
-        Parameters()
-        window['-m-'].update(disabled=True)
-        window['-BEARING_FACTOR-'].update(disabled=True)
-        window['-PIN_HOLE_FACTOR-'].update(disabled=True)
-        window['-Rbr-'].update(disabled=False)
-        window['-bearing_dia-'].update(disabled=False)
-        window['-pin_dia-'].update(disabled=False)
-        window['-Xpin-'].update(disabled=False)
-        window['-Mode1-'].update(disabled=False)
-        window['-Mode2-'].update(disabled=True)
-    elif event == '-Mode1-':
-        mode=1
-        Parameters()
-        window['-m-'].update(disabled=False)
-        window['-BEARING_FACTOR-'].update(disabled=False)
-        window['-PIN_HOLE_FACTOR-'].update(disabled=False)
-        window['-Rbr-'].update(disabled=True)
-        window['-bearing_dia-'].update(disabled=True)
-        window['-pin_dia-'].update(disabled=True)
-        window['-Xpin-'].update(disabled=True)
-        window['-Mode1-'].update(disabled=True)
-        window['-Mode2-'].update(disabled=False)
-    elif event == '-Update-':
+    elif event=='Update' or values['-module_based-'] or values['-dia_based-']:
         Update()
 window.close()
-
