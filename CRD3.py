@@ -5,6 +5,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import ezdxf
 
+sg.set_options(font=('D2Coding', 12))
+
 def Transform(Xinput,Yinput,Xmove,Ymove):
     Xoutput = Xinput + Xmove
     Youtput = Yinput + Ymove
