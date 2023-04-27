@@ -58,6 +58,24 @@ pyinstaller --icon=CRD3.ico -w -F CRD3.py
 /storage/emulated/0/Pictures/DCIM/Screenshots/Figure_1.png
 ```
 
+## Using on Linux
+
+* **Anaconda3** has Tk font problem.
+* In **pyenv** Environment
+
+```bash
+pyenv install 3.11.3
+pyenv global 3.11.3
+
+pip install numpy
+pip install matplotlib
+pip install ezdxf
+pip install pysimplegui
+
+python CRD3.py
+```
+
+
 ## Input parameters
 
 * __m__ : Module (Similar to Involute gear design system)
