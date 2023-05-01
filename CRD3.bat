@@ -1,6 +1,6 @@
 REM Anaconda3 Environment
 REM set root=%USERPROFILE%\anaconda3
-set root=%ProgramData%\anaconda3
+set root=%LOCALAPPDATA%\miniconda3
 call %root%\Scripts\activate.bat %root%
 REM call conda env list
 call conda activate base
